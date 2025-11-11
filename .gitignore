@@ -1,0 +1,4 @@
+certificate_tool
+output/
+build/
+*.o
