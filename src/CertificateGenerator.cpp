@@ -294,38 +294,55 @@ void CertificateGenerator::saveMetadataReport() const {
 std::unordered_map<std::string, VisualStyle> loadVisualStyles(const std::string &directory) {
     std::unordered_map<std::string, VisualStyle> styles;
 
-    for (const auto &entry : fs::directory_iterator(directory)) {
-        if (!entry.is_regular_file()) {
-            continue;
-        }
+    const fs::path dirPath(directory);
+    if (directory.empty()) {
+        throw std::runtime_error("Styles directory path is empty");
+    }
 
-        std::ifstream file(entry.path());
-        if (!file) {
-            std::cerr << "Skipping style file: " << entry.path() << '\n';
-            continue;
-        }
+    if (!fs::exists(dirPath)) {
+        throw std::runtime_error("Styles directory not found: " + directory);
+    }
 
-        VisualStyle style;
-        style.name = entry.path().stem().string();
+    if (!fs::is_directory(dirPath)) {
+        throw std::runtime_error("Styles path is not a directory: " + directory);
+    }
 
-        std::string line;
-        while (std::getline(file, line)) {
-            auto delimiterPos = line.find(':');
-            if (delimiterPos == std::string::npos) {
+    try {
+        for (const auto &entry : fs::directory_iterator(dirPath)) {
+            if (!entry.is_regular_file()) {
                 continue;
             }
 
-            auto key = trimWhitespace(line.substr(0, delimiterPos));
-            auto value = trimWhitespace(line.substr(delimiterPos + 1));
-
-            if (key == "background") {
-                style.backgroundDescription = value;
-            } else if (key == "font") {
-                style.fontDescription = value;
+            std::ifstream file(entry.path());
+            if (!file) {
+                std::cerr << "Skipping style file: " << entry.path() << '\n';
+                continue;
             }
-        }
 
-        styles.emplace(style.name, style);
+            VisualStyle style;
+            style.name = entry.path().stem().string();
+
+            std::string line;
+            while (std::getline(file, line)) {
+                auto delimiterPos = line.find(':');
+                if (delimiterPos == std::string::npos) {
+                    continue;
+                }
+
+                auto key = trimWhitespace(line.substr(0, delimiterPos));
+                auto value = trimWhitespace(line.substr(delimiterPos + 1));
+
+                if (key == "background") {
+                    style.backgroundDescription = value;
+                } else if (key == "font") {
+                    style.fontDescription = value;
+                }
+            }
+
+            styles.emplace(style.name, style);
+        }
+    } catch (const fs::filesystem_error &ex) {
+        throw std::runtime_error("Failed to read styles directory '" + directory + "': " + ex.what());
     }
 
     return styles;

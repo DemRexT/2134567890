@@ -64,16 +64,29 @@ g++ -std=c++17 -Isrc -Iinclude src/*.cpp -o certificate_tool
 строку, либо используйте обратный апостроф `` ` `` для продолжения строки:
 
 ```powershell
-.\certificate_tool `
-  --template data/certificate_template.txt `
-  --data data/recipients.csv `
+# если вы остались внутри каталога build после сборки
+Set-Location build
+.\certificate_tool.exe `
+  --template ..\data\certificate_template.txt `
+  --data ..\data\recipients.csv `
+  --styles ..\styles `
+  --style classic `
+  --output ..\output
+
+# если выполняете команду из корня репозитория
+.\build\certificate_tool.exe `
+  --template data\certificate_template.txt `
+  --data data\recipients.csv `
   --styles styles `
   --style classic `
   --output output
 ```
 
-Если вы запускаете бинарник из каталога сборки, не забудьте указать путь,
-например `.\\build\\certificate_tool.exe` или `.\\build\\Release\\certificate_tool.exe`
-в зависимости от выбранного режима сборки.
+Убедитесь, что исполнимый файл лежит в папке `build` (или `build\Release` при
+многофайловой конфигурации Visual Studio). При желании можно скопировать
+`certificate_tool.exe` в корень проекта — тогда команда из примера выше без пути
+(`.\certificate_tool.exe`) тоже будет работать.
 
 По завершении работы утилита выведет в консоль ФИО и место каждого награжденного, создаст PDF-файлы грамот в указанной папке и сформирует отчет `metadata.csv` с деталями по каждому участнику.
+
+> ⚠️ Если программа сообщает `Styles directory not found: ...`, значит путь, переданный в `--styles`, указывает на несуществующую папку. Убедитесь, что вы запускаете утилиту из нужного каталога (например, `build`) и скорректируйте путь на `..\styles` или `../styles`.
