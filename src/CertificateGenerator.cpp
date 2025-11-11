@@ -11,13 +11,23 @@
 namespace fs = std::filesystem;
 
 namespace {
+std::string trimWhitespace(const std::string &text) {
+    const auto first = text.find_first_not_of(" \t\n\r");
+    if (first == std::string::npos) {
+        return "";
+    }
+
+    const auto last = text.find_last_not_of(" \t\n\r");
+    return text.substr(first, last - first + 1);
+}
+
 std::vector<std::string> splitCSVLine(const std::string &line) {
     std::vector<std::string> result;
     std::stringstream ss(line);
     std::string item;
 
     while (std::getline(ss, item, ';')) {
-        result.push_back(item);
+        result.push_back(trimWhitespace(item));
     }
     return result;
 }
@@ -305,8 +315,8 @@ std::unordered_map<std::string, VisualStyle> loadVisualStyles(const std::string 
                 continue;
             }
 
-            auto key = line.substr(0, delimiterPos);
-            auto value = line.substr(delimiterPos + 1);
+            auto key = trimWhitespace(line.substr(0, delimiterPos));
+            auto value = trimWhitespace(line.substr(delimiterPos + 1));
 
             if (key == "background") {
                 style.backgroundDescription = value;

@@ -30,6 +30,17 @@ cmake ..
 cmake --build .
 ```
 
+### Где искать исполнимый файл
+
+* При использовании одноконфигурационных генераторов CMake (Ninja, MinGW Makefiles)
+  бинарник появляется прямо в каталоге `build`. На Windows он будет называться
+  `certificate_tool.exe`. Запускайте его из каталога сборки (`./certificate_tool` или
+  `.\\certificate_tool.exe`) либо укажите полный путь из корня проекта
+  (`.\\build\\certificate_tool.exe`).
+* Если CMake создаёт многофайловую конфигурацию Visual Studio, укажите нужный режим
+  сборки: `cmake --build . --config Release`. Исполнимый файл появится в подпапке
+  `Release` (или `Debug`), например `.\\build\\Release\\certificate_tool.exe`.
+
 Для простоты можно воспользоваться и прямым вызовом компилятора:
 
 ```bash
@@ -60,5 +71,9 @@ g++ -std=c++17 -Isrc -Iinclude src/*.cpp -o certificate_tool
   --style classic `
   --output output
 ```
+
+Если вы запускаете бинарник из каталога сборки, не забудьте указать путь,
+например `.\\build\\certificate_tool.exe` или `.\\build\\Release\\certificate_tool.exe`
+в зависимости от выбранного режима сборки.
 
 По завершении работы утилита выведет в консоль ФИО и место каждого награжденного, создаст PDF-файлы грамот в указанной папке и сформирует отчет `metadata.csv` с деталями по каждому участнику.
