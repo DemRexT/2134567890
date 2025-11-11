@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 
+
 namespace fs = std::filesystem;
 
 namespace {
@@ -130,6 +131,8 @@ std::string buildSimplePDF(const std::vector<std::string> &lines) {
 
     return pdf;
 }
+
+
 }
 
 CertificateGenerator::CertificateGenerator(std::string templatePath,
@@ -184,11 +187,13 @@ void CertificateGenerator::loadRecipients() {
 
         auto columns = splitCSVLine(line);
         if (columns.size() < 5) {
+        if (columns.size() < 4) {
             std::cerr << "Skipping malformed line: " << line << '\n';
             continue;
         }
 
         RecipientRecord record{columns[0], columns[1], columns[2], columns[3], columns[4]};
+        RecipientRecord record{columns[0], columns[1], columns[2], columns[3]};
         recipients_.push_back(std::move(record));
     }
 
@@ -214,6 +219,7 @@ std::string CertificateGenerator::fillTemplate(const RecipientRecord &recipient)
     const std::vector<std::pair<std::string, std::string>> replacements = {
         {"{FULL_NAME}", recipient.fullName},
         {"{PLACE}", recipient.place},
+
         {"{ACHIEVEMENT}", recipient.achievement},
         {"{DATE}", recipient.issueDate},
         {"{NOTES}", recipient.additionalNotes},
@@ -252,6 +258,11 @@ void CertificateGenerator::saveCertificate(const RecipientRecord &recipient, con
     std::string pdfData = buildSimplePDF(lines);
 
     std::ofstream outputFile(outputPath, std::ios::binary);
+
+    auto fileName = sanitizeFileName(recipient.fullName) + ".txt";
+    fs::path outputPath = fs::path(outputDirectory_) / fileName;
+
+    std::ofstream outputFile(outputPath);
     if (!outputFile) {
         throw std::runtime_error("Failed to write certificate file: " + outputPath.string());
     }
@@ -259,6 +270,10 @@ void CertificateGenerator::saveCertificate(const RecipientRecord &recipient, con
     outputFile.write(pdfData.data(), static_cast<std::streamsize>(pdfData.size()));
     std::cout << "ФИО: " << recipient.fullName << ", место: " << recipient.place
               << " -> файл: " << outputPath << '\n';
+
+    outputFile << content;
+    std::cout << "Generated certificate for " << recipient.fullName
+              << " -> " << outputPath << '\n';
 }
 
 void CertificateGenerator::saveMetadataReport() const {
@@ -272,6 +287,9 @@ void CertificateGenerator::saveMetadataReport() const {
     for (const auto &recipient : recipients_) {
         reportFile << std::quoted(recipient.fullName, '"', '"') << ';'
                    << std::quoted(recipient.place, '"', '"') << ';'
+    reportFile << "Full Name;Achievement;Date;Notes;Style" << '\n';
+    for (const auto &recipient : recipients_) {
+        reportFile << std::quoted(recipient.fullName, '"', '"') << ';'
                    << std::quoted(recipient.achievement, '"', '"') << ';'
                    << recipient.issueDate << ';'
                    << std::quoted(recipient.additionalNotes, '"', '"') << ';'
