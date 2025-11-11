@@ -7,6 +7,7 @@
 
 struct RecipientRecord {
     std::string fullName;
+    std::string place;
     std::string achievement;
     std::string issueDate;
     std::string additionalNotes;
