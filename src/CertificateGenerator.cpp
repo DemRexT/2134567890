@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+=======
 
 namespace fs = std::filesystem;
 
@@ -130,6 +131,7 @@ std::string buildSimplePDF(const std::vector<std::string> &lines) {
 
     return pdf;
 }
+=======
 }
 
 CertificateGenerator::CertificateGenerator(std::string templatePath,
@@ -251,11 +253,18 @@ void CertificateGenerator::saveCertificate(const RecipientRecord &recipient, con
     std::string pdfData = buildSimplePDF(lines);
 
     std::ofstream outputFile(outputPath, std::ios::binary);
+=======
+    auto fileName = sanitizeFileName(recipient.fullName) + ".txt";
+    fs::path outputPath = fs::path(outputDirectory_) / fileName;
+
+    std::ofstream outputFile(outputPath);
     if (!outputFile) {
         throw std::runtime_error("Failed to write certificate file: " + outputPath.string());
     }
 
     outputFile.write(pdfData.data(), static_cast<std::streamsize>(pdfData.size()));
+=======
+    outputFile << content;
     std::cout << "Generated certificate for " << recipient.fullName
               << " -> " << outputPath << '\n';
 }
