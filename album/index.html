@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Защищённый фотоальбом</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section id="authSection" class="auth-card">
+        <h1>Вход в фотоальбом</h1>
+        <p>Только авторизованные пользователи могут просматривать фотографии.</p>
+        <form id="loginForm" class="auth-form">
+          <label>
+            Логин
+            <input id="usernameInput" name="username" type="text" required autocomplete="username" />
+          </label>
+          <label>
+            Пароль
+            <input id="passwordInput" name="password" type="password" required autocomplete="current-password" />
+          </label>
+          <button type="submit" class="upload-btn">Войти</button>
+        </form>
+        <p id="authMessage" class="auth-message"></p>
+      </section>
+
+      <section id="albumSection" class="hidden">
+        <header class="app__header">
+          <div>
+            <h2>Мой фотоальбом</h2>
+            <p>Листай страницы и добавляй свои фотографии.</p>
+            <p class="welcome">Вы вошли как: <strong id="currentUser"></strong></p>
+          </div>
+          <div class="header-actions">
+            <label class="upload-btn" for="photoInput">Добавить фото</label>
+            <button id="logoutBtn" class="clear-btn" type="button">Выйти</button>
+          </div>
+          <input id="photoInput" type="file" accept="image/*" multiple />
+        </header>
+
+        <section class="album" aria-live="polite">
+          <button class="nav-btn nav-btn--prev" id="prevBtn" aria-label="Предыдущая страница">‹</button>
+          <article class="book" id="book"></article>
+          <button class="nav-btn nav-btn--next" id="nextBtn" aria-label="Следующая страница">›</button>
+        </section>
+
+        <footer class="app__footer">
+          <span id="pageIndicator">Страница 1 / 1</span>
+          <button id="clearBtn" class="clear-btn" type="button">Очистить альбом</button>
+        </footer>
+      </section>
+    </main>
+
+    <template id="pageTemplate">
+      <section class="page">
+        <div class="page__content"></div>
+      </section>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
